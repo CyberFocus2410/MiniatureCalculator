@@ -1,0 +1,40 @@
+name: Build APK
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.9'
+
+    - name: Install dependencies
+      run: |
+        sudo apt update
+        sudo apt install -y build-essential libssl-dev libffi-dev python3-pip \
+          libsqlite3-dev zlib1g-dev libjpeg-dev libfreetype6-dev libpng-dev \
+          libSDL2-dev libSDL2-image-dev libSDL2-mixer-dev libSDL2-ttf-dev \
+          libportmidi-dev libswscale-dev libavformat-dev libavcodec-dev \
+          libtiff-dev libx11-dev libxext-dev libgl1-mesa-dev libgles2-mesa-dev \
+          libudev-dev libdbus-1-dev libnotify-dev libatk1.0-dev libcairo2-dev \
+          libpango1.0-dev libgdk-pixbuf2.0-dev libgtk-3-dev
+
+        pip install buildozer cython
+
+    - name: Build APK
+      run: |
+        buildozer android debug
+
+    - name: Upload APK
+      uses: actions/upload-artifact@v2
+      with:
+        name: minicalc-apk
+        path: bin/*.apk
